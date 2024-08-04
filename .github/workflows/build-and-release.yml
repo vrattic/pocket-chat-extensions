@@ -1,0 +1,54 @@
+name: Build and Release VSIX
+
+on:
+  push:
+    branches:
+      - 'release'
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      #- name: Lint and test
+      #  run: npm run lint && npm test
+
+      - name: Install vsce globally
+        run: npm install -g @vscode/vsce
+
+      - name: Build VSIX file
+        run: vsce package
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.ref }}
+          release_name: Release ${{ github.event.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./*.vsix
+          asset_name: pocket-chat-extensions-${{ github.event.ref }}.vsix
+          asset_content_type: application/octet-stream
