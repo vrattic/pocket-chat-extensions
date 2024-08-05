@@ -666,6 +666,41 @@ function reloadExtension(message: string) {
 }
 
 /**
+ * Update the "installedTimestamp" metadata in the "extensions.json" file.
+ * If the file is not found, no action is taken.
+ * 
+ * Changing this metadata will make vscode expect changes in the extension
+ * package.json file. Otherwise, if it changes, a generic error message
+ * indicating that some extension has changed will be displayed to the user,
+ * requiring a second reload.
+ * 
+ * @param context The context of the extension.
+ * @throws If the "extensions.json" file is not valid JSON.
+ * @throws If the extension entry is not found in the "extensions.json" file.
+ */
+function updateExtensionInstalledTimestamp(context: vscode.ExtensionContext) {
+	// Attempt to find a "extensions.json" file in the parent directory of the extension
+	const extensionsJsonPath = path.join(context.extensionPath, '..', 'extensions.json');
+	if (!fs.existsSync(extensionsJsonPath)) {
+		console.warn('extensions.json not found. This is expected while running in development.');
+		return;
+	}
+
+	// Load JSON content from the "extensions.json" file
+	// This file contains info about the installed extensions
+	const extensionsJson = JSON.parse(fs.readFileSync(extensionsJsonPath, 'utf-8'));
+
+	// Find the extension entry in the "extensions.json" file ([x].identifier.id)
+	// and update the timestamp metadata ([x].metadata.installedTimestamp)
+	const extensionEntry = extensionsJson.find((entry: any) => entry.identifier.id === 'vrattic.pocket-chat-extensions');
+	extensionEntry.metadata.installedTimestamp = Date.now();
+
+	// Write the updated "extensions.json" file
+	fs.writeFileSync(extensionsJsonPath, JSON.stringify(extensionsJson), 'utf-8');
+}
+
+
+/**
  * Get the path to the extension's package.json file.
  * @param context The context of the extension.
  * @returns The path to the package.json file.
@@ -707,6 +742,7 @@ function editPackageJson(context: vscode.ExtensionContext, callback: (packageJso
 		// If changes were made update the file and reload the extension
 		if (changed) {
 			fs.writeFileSync(packageJsonPath, updatedPackageJson, 'utf-8');
+			updateExtensionInstalledTimestamp(context);
 			reloadExtension('Reload to apply changes');
 		} else {
 			console.log('No changes were made to package.json');

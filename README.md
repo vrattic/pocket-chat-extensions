@@ -35,7 +35,7 @@ The extension is not yet available on the marketplace. To install the extension,
 
 #### Downloading from the releases page
 
-1. Go to the [latest release page]() and download the `.vsix` file
+1. Go to the [latest release page](https://github.com/vrattic/pocket-chat-extensions/releases/latest) and download the `.vsix` file
 2. Open Visual Studio Code
 3. Press `Ctrl+Shift+P` to open the command palette
 4. Type `Extensions: Install from VSIX...` and press `Enter`
@@ -44,8 +44,8 @@ The extension is not yet available on the marketplace. To install the extension,
 #### Building from source
 
 1. Follow the instructions in [Getting Started](#getting-started) to get the repo ready
-2. Check out to the `release` branch to get the latest stable version
-3. Run `npm run package` to build the extension
+2. Check out to the `release` branch to build from the latest stable version
+3. Run `npx vsce package` to build the extension. This will create a `.vsix` file in the root directory
 4. Open Visual Studio Code and install the extension as described above
 
 ### First Steps
