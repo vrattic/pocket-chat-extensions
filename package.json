@@ -2,7 +2,7 @@
   "name": "pocket-chat-extensions",
   "displayName": "Pocket Chat Extensions",
   "description": "VSCode Chat Extensions made easy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "vrattic",
   "engines": {
     "vscode": "^1.90.0"
